@@ -1,0 +1,69 @@
+---
+title: "Class 05"
+author: "Mia DeFazio"
+date: "2026-09-09"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    numbered_sections: true
+    code_download: true
+    code_folding: show
+    theme: simplex
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+## Game 01: Subsetting Lists
+
+```{r}
+campus = jsonlite::fromJSON(
+  "https://isa401-find-your-seat.vercel.app/campus.json")
+campus
+```
+```{r}
+names(campus) # shows the named elements within a list( or vector) or the cols in a data frame
+```
+```{r}
+fsb= campus$Farmer # saving the named farmer list in FSB
+fsb
+```
+```{r}
+campus[["Farmer"]]$floors[["2"]]$sections
+
+fsb = campus$Farmer # saving the snamed farmer list in FSB
+# equivalent campus [['Farmer]] by name or campus [[5]] by position
+fsb$code
+fsb[[8]]
+
+sec_floor = fsb [[8]]$`2`
+sec_floor_rooms = sec_floor[[3]]
+View ( sec_floor_rooms)
+
+```
+```{r}
+campus[["Farmer"]]$floors[["2"]]$rooms
+```
+
+## Reading the Excel File
+
+```{r occupations}
+occupation = readxl::read_excel(
+  path = "../data/occupation.xlsx",
+  sheet = 5
+)
+```
+
+
+
+
+
+
+
+
+

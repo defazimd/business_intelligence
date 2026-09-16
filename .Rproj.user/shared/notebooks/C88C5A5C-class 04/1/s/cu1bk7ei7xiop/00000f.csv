@@ -1,0 +1,4 @@
+"0","crashes_by_day = c(2020, 2241, 2327, 2285, 2380, 1866, 1664)"
+"0","names(crashes_by_day) = c(""Mon"", ""Tue"", ""Wed"", ""Thu"","
+"0","                          ""Fri"", ""Sat"", ""Sun"")"
+"0",""

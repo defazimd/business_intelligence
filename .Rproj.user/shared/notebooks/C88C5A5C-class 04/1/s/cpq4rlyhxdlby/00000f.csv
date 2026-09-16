@@ -1,0 +1,7 @@
+"0","company_name = job$company #job[[2]], however, this returns a list job [2]"
+"0","company_name"
+"1","[1]"
+"1"," ""Google"""
+"1","
+"
+"0","company_name_as_named_list = job[2] #we typically dont want this answer, the one above is correct"

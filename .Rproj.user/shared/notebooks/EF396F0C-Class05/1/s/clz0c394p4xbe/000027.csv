@@ -1,0 +1,6 @@
+"0","occupation = readxl::read_excel("
+"0","  path = ""../data/occupation.xlsx"","
+"0","  sheet = 5"
+"0",")"
+"2","Error: `path` does not exist: ‘../data/occupation.xlsx’
+"

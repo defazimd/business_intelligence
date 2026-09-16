@@ -1,0 +1,6 @@
+"0","crashes_df = tibble::tibble("
+"0","  day     = names(crashes_by_day),"
+"0","  crashes = crashes_by_day,"
+"0","  busy    = crashes_by_day > 2000"
+"0",")"
+"0","crashes_df"

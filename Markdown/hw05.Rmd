@@ -1,0 +1,48 @@
+---
+title: "hw05"
+author: "Mia DeFazio"
+date: "2026-09-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+con = DBI::dbConnect(RSQLite::SQLite(), "data/midwest_airbnb.db")
+listings = DBI::dbReadTable(con, "listings")
+con
+listings
+```
+```{r}
+nrow(listings)
+```
+```{r}
+sum(listings$city=="Columbus")
+```
+```{r}
+max(listings$price[listings$city=="Chicago"])
+```
+
+```{r}
+listings[listings$price==10000,]
+```
+```{r}
+length(unique(listings$neighbourhood[listings$city=="Chicago"]))
+```
+
+```{r}
+sum(listings$host_is_superhost=="t", na.rm = TRUE)
+```
+
+```{r}
+sum(listings$price > 1000)
+```
+
+
+
+
+
