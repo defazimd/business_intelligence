@@ -3,8 +3,27 @@ library(querychat)
 library(shiny)
 library(bslib)
 
+con = DBI::dbConnect(
+  RSQLite::SQLite(),
+  "data/midwest_airbnb.db"
+)
+
+client = ellmer::chat_openai(
+  model = "gpt-5.6-luna",
+  params = ellmer::params(reasoning_effort = "none")
+)
+
+qc = querychat::querychat(
+  con, "listings",
+  client = client,
+  tools = c("filter", "query", "visualize"),
+  greeting = "Ask me about 14,887 Airbnb listings in Chicago, Columbus, and the Twin Cities.",
+  data_description = "data/data_desc.md",
+  extra_instructions = "data/extra_instructions.md"
+)
+
 ui = page_sidebar(
-  title = "Midwest Airbnb Chat",
+  title = "Midwest Airbnb App",
   
   theme = bs_theme(
     primary = "#2F6F73",
@@ -20,12 +39,10 @@ ui = page_sidebar(
   
   accordion(
     open = FALSE,
-    
     accordion_panel(
       "SQL",
       verbatimTextOutput("sql")
     ),
-    
     accordion_panel(
       "About",
       "Midwest Airbnb Explorer uses listing data from Inside Airbnb for Chicago (2026-07-20), Columbus (2026-07-23), and the Twin Cities (2026-07-21). Built by Mia DeFazio."
@@ -38,7 +55,7 @@ server = function(input, output, session) {
   vals = qc$server()
   
   output$title = renderText(
-    vals$title() %||% "Explore Midwest Airbnb Listings"
+    vals$title() %||% "All Airbnb listings"
   )
   
   output$table = DT::renderDT(
