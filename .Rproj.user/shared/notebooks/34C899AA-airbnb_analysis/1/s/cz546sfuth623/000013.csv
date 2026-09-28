@@ -1,0 +1,6 @@
+"0","task3 |>"
+"0","  dplyr::filter("
+"0","    city == ""Twin Cities"","
+"0","    room_type == ""Entire home/apt"""
+"0","  ) |>"
+"0","  dplyr::select(estimated_revenue_l365d)"

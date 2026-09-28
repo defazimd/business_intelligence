@@ -1,0 +1,230 @@
+---
+title: "Airbnb Market Analysis"
+author: "Mia DeFazio"
+date: "2026-09-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+con = DBI::dbConnect(
+  RSQLite::SQLite(),
+  "../data/midwest_airbnb_extended.db"
+)
+
+listings = DBI::dbReadTable(con, "listings") |>
+  tibble::as_tibble()
+
+availability = DBI::dbReadTable(con, "availability_monthly") |>
+  tibble::as_tibble()
+
+reviews = DBI::dbReadTable(con, "reviews_monthly") |>
+  tibble::as_tibble()
+
+DBI::dbDisconnect(con)
+```
+
+## Task 1
+```{r}
+host_counts = listings |>
+  dplyr::count(host_id, name = "host_listings")
+
+listings_with_counts = listings |>
+  dplyr::left_join(host_counts, by = "host_id")
+
+A1 = host_counts |>
+  dplyr::filter(host_listings >= 10) |>
+  dplyr::summarize(hosts_10_plus = dplyr::n())
+A1
+A2 = listings_with_counts |>
+  dplyr::filter(city == "Chicago") |>
+  dplyr::summarize(
+    percent_10_plus = round(
+      100 * mean(host_listings >= 10),
+      1))
+A2
+```
+# Task 2
+```{r}
+task2 = listings |>
+  dplyr::filter(
+    room_type == "Entire home/apt",
+    accommodates >= 4,
+    number_of_reviews >= 10,
+    review_scores_rating >= 4.8
+  ) |>
+  dplyr::mutate(price_per_person = price / accommodates) |>
+  dplyr::group_by(city, neighbourhood) |>
+  dplyr::summarize(
+    median_price = median(price_per_person, na.rm = TRUE),
+    n = dplyr::n()
+  ) |>
+  dplyr::filter(n >= 20, city == "Columbus") |>
+  dplyr::arrange(median_price)
+
+task2
+```
+
+# Task 3 
+```{r}
+task3 = listings |>
+  dplyr::group_by(city, room_type) |>
+  dplyr::summarize(
+    dplyr::across(
+      c(price, reviews_per_month, estimated_revenue_l365d),
+      ~ median(.x, na.rm = TRUE)))
+task3
+task3 |>
+  dplyr::filter(
+    city == "Twin Cities",
+    room_type == "Entire home/apt"
+  ) |>
+  dplyr::select(estimated_revenue_l365d)
+```
+#Task 4
+```{r}
+task4 = listings |>
+  dplyr::group_by(city) |>
+  dplyr::arrange(dplyr::desc(estimated_revenue_l365d), .by_group = TRUE) |>
+  dplyr::mutate(
+    top_10 = dplyr::row_number() <= ceiling(0.10 * dplyr::n())
+  ) |>
+  dplyr::summarize(
+    top_10_revenue = sum(estimated_revenue_l365d[top_10], na.rm = TRUE),
+    total_revenue = sum(estimated_revenue_l365d, na.rm = TRUE),
+    percent = 100 * top_10_revenue / total_revenue
+  )
+
+task4 |>
+  dplyr::filter(city == "Columbus") |>
+  dplyr::mutate(percent = round(percent, 1)) |>
+  dplyr::select(percent)
+```
+# Task 5
+```{r}
+task5 = availability |>
+  dplyr::filter(month == "2026-10") |>
+  dplyr::inner_join(
+    listings |>
+      dplyr::filter(room_type == "Entire home/apt") |>
+      dplyr::select(id, city),
+    by = "id"
+  ) |>
+  dplyr::mutate(
+    mostly_taken = nights_available < 0.5 * nights_in_month
+  ) |>
+  dplyr::group_by(city) |>
+  dplyr::summarize(
+    percent_mostly_taken = 100 * mean(mostly_taken, na.rm = TRUE)
+  ) |>
+  dplyr::arrange(percent_mostly_taken)
+
+task5 |>
+  dplyr::slice(1) |>
+  dplyr::mutate(
+    percent_mostly_taken = round(percent_mostly_taken, 1))
+```
+# Task 6
+```{r}
+task6 = reviews |>
+  dplyr::inner_join(
+    listings |>
+      dplyr::select(id, city),
+    by = "id"
+  ) |>
+  dplyr::filter(
+    month >= "2025-07",
+    month <= "2026-06"
+  ) |>
+  dplyr::group_by(city, month) |>
+  dplyr::summarize(
+    total_reviews = sum(reviews, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+twin_cities = task6 |>
+  dplyr::filter(city == "Twin Cities")
+
+twin_cities |>
+  dplyr::summarize(
+    busiest_month = month[which.max(total_reviews)],
+    ratio = round(max(total_reviews) / min(total_reviews), 2))
+```
+# Task 8
+```{r}
+task8 = listings |>
+  dplyr::anti_join(availability, by = "id")
+
+task8 |>
+  dplyr::summarize(
+    listings_without_availability = dplyr::n())
+```
+# Task 7
+```{r}
+task7 = listings |>
+  dplyr::filter(
+    room_type == "Entire home/apt",
+    host_is_superhost %in% c("t", "f")) |>
+  dplyr::group_by(city, host_is_superhost) |>
+  dplyr::summarize(
+    median_price = median(price, na.rm = TRUE),
+    median_rating = median(review_scores_rating, na.rm = TRUE),.groups = "drop")
+premiums = task7 |>
+  dplyr::select(city, host_is_superhost, median_price) |>
+  tidyr::pivot_wider(
+    names_from = host_is_superhost,
+    values_from = median_price) |>
+  dplyr::mutate(premium = t - f) |>
+  dplyr::select(city, premium)
+
+premiums
+```
+
+#Scrape Miami's Bulletin for ISA
+```{r}
+# checking whether we are allowed to scrape this info
+# This was done above and fouund to be TRUE
+
+# I will load the backend of the HTML into R using
+# [a] rvest::read_html() | sometyimes rvest::read_html_live if the page jas some dynamic content
+#[b] n some cases, we will craft this as a request as shown in slides httr2::request()>...> httr2::resp_body_html(
+isa_courses_in_r = rvest::read_html("https://bulletin.miamioh.edu/courses-instruction/isa/")
+
+#we will extract the course titles. which we can do in a single pipeline
+# given that they look the same on the rendered web page in Chrome
+# (bolded, same font size and same font type)
+
+# CSS selected was obtained by:
+#[a] highlighting what we wanted to pull (ISA 401 course title) -> 
+# inspect -> right click -> copy -> copy selector
+#[b] from this specific example, we were able to get just the title for ISA 401
+# because we had `:nth-child(24)` -> if you were to drop it -> you get all of the course titles 
+isa_courses_in_r |> 
+  rvest::html_elements("#sc_sccoursedescs > div > p.courseblocktitle > strong") |> 
+  rvest::html_text2() -> isa_titles
+
+#course descriptions [using selector gadget which does not always work]
+isa_courses_in_r |> 
+  rvest::html_elements(".courseblockdesc") |> 
+  rvest::html_text2() -> isa_desc
+df = data.frame(title = isa_titles, descriptions = isa_desc)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+

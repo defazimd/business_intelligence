@@ -1,0 +1,7 @@
+"0","A2 = listings_with_counts |>"
+"0","  dplyr::filter(city == ""Chicago"") |>"
+"0","  dplyr::summarize("
+"0","    percent_10_plus = round("
+"0","      100 * mean(host_listings >= 10),"
+"0","      1))"
+"0","A2"

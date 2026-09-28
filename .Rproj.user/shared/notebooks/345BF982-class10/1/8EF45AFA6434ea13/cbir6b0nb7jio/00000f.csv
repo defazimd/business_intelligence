@@ -1,0 +1,8 @@
+"0","#In some cases, the robotstxt rpvides inconsistent answers"
+"0","# typically, you get a warning with the answer that is incorrect"
+"0","# solution: drop the trailing slash from the url"
+"0","robotstxt:: paths_allowed( paths = ""/jobs/"", domain = ""https://www.linkedin.com"")"
+"1","[1]"
+"1"," FALSE"
+"1","
+"

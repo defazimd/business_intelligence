@@ -1,0 +1,6 @@
+"0","task8 = listings |>"
+"0","  dplyr::anti_join(availability, by = ""id"")"
+"0",""
+"0","task8 |>"
+"0","  dplyr::summarize("
+"0","    listings_without_availability = dplyr::n())"

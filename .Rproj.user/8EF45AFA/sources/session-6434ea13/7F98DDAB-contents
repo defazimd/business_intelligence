@@ -1,0 +1,40 @@
+---
+title: "class10"
+author: "Mia DeFazio"
+date: "2026-09-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+In the chunk below, we used the [robotstxt package](https://gitup.com/ropensci/robotstxt) to check if we are allowed to write a program that scrapes the page: <>
+```{r}
+robotstxt::paths_allowed(
+  paths = "courses-instruction/isa/",
+  domain = "https://bulletin.miamioh.edu"
+)
+```
+### `robotstxt`: Wikipedia
+```{r}
+robotstxt::paths_allowed(paths = "/wiki", domain= "https://en.wikipedia.org", bot = "*" )
+```
+
+## `robotstxt`:: Linkedin
+
+```{r}
+#In some cases, the robotstxt rpvides inconsistent answers
+# typically, you get a warning with the answer that is incorrect
+# solution: drop the trailing slash from the url
+robotstxt:: paths_allowed( paths = "/jobs/", domain = "https://www.linkedin.com")
+```
+
+
+
+
+
+
+
+
+
