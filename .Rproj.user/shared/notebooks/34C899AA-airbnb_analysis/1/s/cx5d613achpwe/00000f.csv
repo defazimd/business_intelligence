@@ -1,0 +1,5 @@
+"0","listing_shares = listings_with_counts |>"
+"0","  dplyr::group_by(city) |>"
+"0","  dplyr::summarize("
+"0","    listing_share = round(100 * mean(host_listings >= 10),1))"
+"0","listing_shares"

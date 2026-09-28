@@ -217,7 +217,20 @@ df = data.frame(title = isa_titles, descriptions = isa_desc)
 ```
 
 
+```{r}
+listing_shares = listings_with_counts |>
+  dplyr::group_by(city) |>
+  dplyr::summarize(
+    listing_share = round(100 * mean(host_listings >= 10),1))
+listing_shares
+```
 
+```{r}
+task4 |>
+  dplyr::mutate(
+    percent = round(percent, 1)) |>
+  dplyr::select(city, percent)
+```
 
 
 
