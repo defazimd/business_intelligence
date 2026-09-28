@@ -601,33 +601,6 @@ premiums</code></pre>
 ## 1 Chicago       43.8 
 ## 2 Columbus      40.5 
 ## 3 Twin Cities   -1.38</code></pre>
-<p>#Scrape Miami’s Bulletin for ISA</p>
-<pre class="r"><code># checking whether we are allowed to scrape this info
-# This was done above and fouund to be TRUE
-
-# I will load the backend of the HTML into R using
-# [a] rvest::read_html() | sometyimes rvest::read_html_live if the page jas some dynamic content
-#[b] n some cases, we will craft this as a request as shown in slides httr2::request()&gt;...&gt; httr2::resp_body_html(
-isa_courses_in_r = rvest::read_html(&quot;https://bulletin.miamioh.edu/courses-instruction/isa/&quot;)
-
-#we will extract the course titles. which we can do in a single pipeline
-# given that they look the same on the rendered web page in Chrome
-# (bolded, same font size and same font type)
-
-# CSS selected was obtained by:
-#[a] highlighting what we wanted to pull (ISA 401 course title) -&gt; 
-# inspect -&gt; right click -&gt; copy -&gt; copy selector
-#[b] from this specific example, we were able to get just the title for ISA 401
-# because we had `:nth-child(24)` -&gt; if you were to drop it -&gt; you get all of the course titles 
-isa_courses_in_r |&gt; 
-  rvest::html_elements(&quot;#sc_sccoursedescs &gt; div &gt; p.courseblocktitle &gt; strong&quot;) |&gt; 
-  rvest::html_text2() -&gt; isa_titles
-
-#course descriptions [using selector gadget which does not always work]
-isa_courses_in_r |&gt; 
-  rvest::html_elements(&quot;.courseblockdesc&quot;) |&gt; 
-  rvest::html_text2() -&gt; isa_desc
-df = data.frame(title = isa_titles, descriptions = isa_desc)</code></pre>
 <pre class="r"><code>listing_shares = listings_with_counts |&gt;
   dplyr::group_by(city) |&gt;
   dplyr::summarize(
